@@ -1,0 +1,2 @@
+- Changelog for v0.1 (2021-06-21)
+    * Add $prez

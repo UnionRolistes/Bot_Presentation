@@ -1,10 +1,5 @@
-import logging
-import sys
-import asyncio
 from importlib import resources
-
-import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 import presentation.info
 
@@ -24,13 +19,6 @@ class Presentation(commands.Cog):
     async def prez(self, ctx):
         """
         Envoie un lien pour se présenter
-        Parameters
-        ----------
-        ctx
-
-        Returns
-        -------
-
         """
         print("plp")
 
@@ -40,7 +28,7 @@ class Presentation(commands.Cog):
 
     @staticmethod
     def get_version():
-        """ Return version.txt of bot. """
+        """ Return version number. """
         return resources.read_text(presentation.info, 'version.txt')
 
     @staticmethod
