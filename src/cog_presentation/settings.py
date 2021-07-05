@@ -1,0 +1,1 @@
+announcement_channel = 'cog_presentation'
