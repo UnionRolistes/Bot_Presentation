@@ -23,11 +23,11 @@ class Presentation(urpy.MyCog):
 
         # checks that $cal is called in the right place
         if isinstance(ctx.channel, discord.DMChannel):
-            await ctx.send(strings.on_cal_dm_channel)
+            await ctx.send(strings.on_prez_dm_channel)
         elif isinstance(ctx.channel, discord.TextChannel):
             anncmnt_channel = discord.utils.get(ctx.guild.channels, name=settings.announcement_channel)
             if not anncmnt_channel:
-                await ctx.send(strings.on_cal_channel_not_found.format(channel=settings.announcement_channel))
+                await ctx.send(strings.on_prez_channel_not_found.format(channel=settings.announcement_channel))
             else:
                 try:
                     webhooks = await anncmnt_channel.webhooks()
@@ -37,11 +37,11 @@ class Presentation(urpy.MyCog):
                           "Le bot nécessite la permission de gérer les webhooks", file=sys.stderr)
                     await ctx.author.send(strings.on_permission_error)
                 except IndexError:
-                    await ctx.send(strings.on_cal_webhook_not_found.format(channel=settings.announcement_channel))
+                    await ctx.send(strings.on_prez_webhook_not_found.format(channel=settings.announcement_channel))
                 else:
-                    await ctx.send(strings.on_cal)
+                    await ctx.send(strings.on_prez)
                     await ctx.author.send(
-                        strings.on_cal_link.format(link=f"http://{await utils.get_public_ip()}.nip.io?webhook={webhook.url}"))
+                        strings.on_prez_link.format(link=f"http://{await utils.get_public_ip()}.nip.io?webhook={webhook.url}"))
 
     @staticmethod
     def get_credits():
