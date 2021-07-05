@@ -14,11 +14,6 @@ class Presentation(urpy.MyCog):
     """
     This cog serves the purpose of automating the making of presentations on the guild.
     """
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print("\t| Presentation started.")
-
     @commands.command()
     async def prez(self, ctx):
         """
@@ -54,7 +49,6 @@ class Presentation(urpy.MyCog):
 
     @staticmethod
     def get_version():
-        """ Return version number. """
         return resources.read_text(cog_presentation.info, 'version.txt')
 
     @staticmethod
