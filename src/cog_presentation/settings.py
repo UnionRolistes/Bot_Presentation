@@ -1,1 +1,1 @@
-announcement_channel = 'cog_presentation'
+announcement_channel = 'presentation'

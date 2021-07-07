@@ -41,7 +41,7 @@ class Presentation(urpy.MyCog):
                 else:
                     await ctx.send(strings.on_cal)
                     await ctx.author.send(
-                        strings.on_cal_link.format(link=f"http://{await utils.get_public_ip()}.nip.io?webhook={webhook.url}"))
+                        strings.on_cal_link.format(link=f"http://presentation.unionrolistes.fr?webhook={webhook.url}"))
 
     @staticmethod
     def get_credits():
