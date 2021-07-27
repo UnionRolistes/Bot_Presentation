@@ -22,7 +22,8 @@ class Presentation(urpy.MyCog):
         super().__init__(bot, 'cog_presentation')
 
         global _
-        _ = bot.localization.gettext
+        _ = lambda s: bot.localization.gettext(s, self.domain)
+        bot.localization.add_translation(self.domain, ['fr'])
 
     @commands.Cog.listener()
     async def on_ready(self):  # TODO move to MyCog
