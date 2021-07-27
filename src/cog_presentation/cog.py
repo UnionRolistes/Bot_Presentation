@@ -8,7 +8,7 @@ from urpy import utils, lcl, MyBot
 import cog_presentation.info
 from cog_presentation import strings
 from cog_presentation import settings
-from utils import error_log
+from urpy.utils import error_log
 
 _ = lcl
 
