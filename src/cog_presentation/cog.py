@@ -57,4 +57,4 @@ class Presentation(urpy.MyCog):
 
     @staticmethod
     def get_name():
-        return resources.read_text(cog_presentation.info, 'delete_name.txt')
+        return resources.read_text(cog_presentation.info, 'name.txt')
