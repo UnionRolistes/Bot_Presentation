@@ -1,0 +1,1 @@
+- setup localization and add french translation
