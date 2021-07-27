@@ -14,6 +14,10 @@ class Presentation(urpy.MyCog):
     """
     This cog serves the purpose of automating the making of presentations on the guild.
     """
+
+    def __init__(self, bot):
+        super().__init__(bot, 'cog_presentation')
+
     @commands.command()
     async def prez(self, ctx):
         """
