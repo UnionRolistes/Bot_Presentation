@@ -34,15 +34,16 @@ class Presentation(urpy.MyCog):
         """
         Envoie un lien pour se présenter
         """
+        base_ctx = ctx
         ctx = urpy.MyContext(ctx)
-
+        # TODO fix contexts shenanigans
         # checks that $cal is called in the right place
         if isinstance(ctx.channel, discord.DMChannel):
-            await ctx.send(strings.on_prez_dm_channel)
+            await base_ctx.send(_(strings.on_prez_dm_channel))
         elif isinstance(ctx.channel, discord.TextChannel):
             anncmnt_channel = discord.utils.get(ctx.guild.channels, name=settings.announcement_channel)
             if not anncmnt_channel:
-                await ctx.send(strings.on_prez_channel_not_found.format(channel=settings.announcement_channel))
+                await ctx.send(_(strings.on_prez_channel_not_found.format(channel=settings.announcement_channel)))
             else:
                 try:
                     webhooks = await anncmnt_channel.webhooks()
@@ -52,9 +53,9 @@ class Presentation(urpy.MyCog):
                               "Le bot nécessite la permission de gérer les webhooks")
                     await ctx.author.send(strings.on_permission_error)
                 except IndexError:
-                    await ctx.send(strings.on_prez_webhook_not_found.format(channel=settings.announcement_channel))
+                    await ctx.send(_(strings.on_prez_webhook_not_found.format(channel=settings.announcement_channel)))
                 else:
-                    await ctx.send(strings.on_prez)
+                    await ctx.send(_(strings.on_prez))
                     await ctx.author.send(
                         strings.on_prez_link.format(link=f"http://presentation.unionrolistes.fr?webhook={webhook.url}"))
 
