@@ -4,10 +4,13 @@ from importlib import resources
 import discord
 from discord.ext import commands
 import urpy
-from urpy import utils
+from urpy import utils, lcl, MyBot
 import cog_presentation.info
 from cog_presentation import strings
 from cog_presentation import settings
+from utils import error_log
+
+_ = lcl
 
 
 class Presentation(urpy.MyCog):
@@ -15,10 +18,17 @@ class Presentation(urpy.MyCog):
     This cog serves the purpose of automating the making of presentations on the guild.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot: MyBot):
         super().__init__(bot, 'cog_presentation')
 
-    @commands.command()
+        global _
+        _ = bot.localization.gettext
+
+    @commands.Cog.listener()
+    async def on_ready(self):  # TODO move to MyCog
+        utils.log("\t| Presentation started.")
+
+    @commands.command(brief=strings.jdr_brief, help=strings.jdr_help)
     async def prez(self, ctx):
         """
         Envoie un lien pour se présenter
@@ -37,8 +47,8 @@ class Presentation(urpy.MyCog):
                     webhooks = await anncmnt_channel.webhooks()
                     webhook: discord.Webhook = webhooks[0]
                 except discord.errors.Forbidden:
-                    print("ERROR:BOT| Impossible d'obtenir les webhooks.",
-                          "Le bot nécessite la permission de gérer les webhooks", file=sys.stderr)
+                    error_log("Impossible d'obtenir les webhooks.",  # TODO change to english
+                              "Le bot nécessite la permission de gérer les webhooks")
                     await ctx.author.send(strings.on_permission_error)
                 except IndexError:
                     await ctx.send(strings.on_prez_webhook_not_found.format(channel=settings.announcement_channel))
