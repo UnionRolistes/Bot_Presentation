@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2021-07-27 05:28+0200\n"
-"PO-Revision-Date: 2021-07-27 05:35+0200\n"
+"PO-Revision-Date: 2021-08-02 17:17+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -21,7 +21,7 @@ msgstr "Envoie un lien pour se présenter"
 
 #: strings.py:18
 msgid "A link has been sent into your DMs to introduce yourself !"
-msgstr "Un lien a été envoyé dans vos MPs pour vous présenter dignement !"
+msgstr "Un lien a été envoyé dans vos messages privés pour vous présenter dignement !"
 
 #: strings.py:19
 #, python-brace-format
