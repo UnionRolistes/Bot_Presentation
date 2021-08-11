@@ -1,3 +1,6 @@
+- Changelog for v0.4.1 (2021-08-11)
+    * Update README
+
 - Changelog for v0.4.0 (2021-08-11)
     * Update README with install steps
     * Added license text in main code files
