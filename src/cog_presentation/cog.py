@@ -57,15 +57,15 @@ class Presentation(urpy.MyCog):
                     whPrez={}
 
                     prez_dir = Path(f'{settings.tmp_wh_location}')
-                    prez_file = Path(f'{settings.tmp_wh_location}/wh')
+                    prez_file = Path(f'{settings.tmp_wh_location}/whPrez')
 
                     if not prez_dir.is_dir():
                         os.mkdir(f'{settings.tmp_wh_location}') # crée le dossier si il n'existe pas
                     if not prez_file.is_file():
-                        x = open(f'{settings.tmp_wh_location}/wh', "w") #Crée le fichier si il n'existe pas. Ne fait rien sinon
+                        x = open(f'{settings.tmp_wh_location}/whPrez', "w") #Crée le fichier si il n'existe pas. Ne fait rien sinon
 
                     if (os.stat(prez_file).st_size) != 0:
-                        with open(f'{settings.tmp_wh_location}/wh', "rb") as f:
+                        with open(f'{settings.tmp_wh_location}/whPrez', "rb") as f:
                             whPrez = pickle.load(f)
 
                     whPrez[ctx.author.id] = (webhook.url, webhook.guild_id, webhook.channel_id)
