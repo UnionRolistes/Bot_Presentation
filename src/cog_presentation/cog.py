@@ -9,6 +9,9 @@ import cog_presentation.info
 from cog_presentation import strings
 from cog_presentation import settings
 from urpy.utils import error_log
+import pickle
+import os
+from pathlib import Path
 
 _ = lcl
 
@@ -51,6 +54,27 @@ class Presentation(urpy.MyCog):
                 try:
                     webhooks = await anncmnt_channel.webhooks()
                     webhook: discord.Webhook = webhooks[0]
+                    whPrez={}
+
+                    prez_dir = Path(f'{settings.tmp_wh_location}')
+                    prez_file = Path(f'{settings.tmp_wh_location}/wh')
+
+                    if not prez_dir.is_dir():
+                        os.mkdir(f'{settings.tmp_wh_location}') # crée le dossier si il n'existe pas
+                    if not prez_file.is_file():
+                        x = open(f'{settings.tmp_wh_location}/wh', "w") #Crée le fichier si il n'existe pas. Ne fait rien sinon
+
+                    if (os.stat(prez_file).st_size) != 0:
+                        with open(f'{settings.tmp_wh_location}/wh', "rb") as f:
+                            whPrez = pickle.load(f)
+
+                    whPrez[ctx.author.id] = (webhook.url, webhook.guild_id, webhook.channel_id)
+                    print('Debug: Sauvegarde du webhook...')
+                    with open(f'{settings.tmp_wh_location}/whPrez', "wb") as f:
+                        pickle.dump(whPrez, f)
+                        print('Debug: Webhook sauvegardé !')
+
+
                 except discord.errors.Forbidden:
                     error_log("Impossible d'obtenir les webhooks.",  # TODO change to english
                               "Le bot nécessite la permission de gérer les webhooks")
@@ -60,7 +84,7 @@ class Presentation(urpy.MyCog):
                 else:
                     await ctx.send(_(strings.on_prez))
                     await ctx.author.send(
-                        strings.on_prez_link.format(link=f"http://presentation.unionrolistes.fr?webhook={webhook.url}"))
+                        strings.on_prez_link.format(link=f"http://presentation.unionrolistes.fr"))
 
     @staticmethod
     def get_credits():
