@@ -1,3 +1,6 @@
+- Changelog for v0.5.1 (2022-06-04)
+    * remove webhook url from form
+
 - Changelog for v0.5.0 (2021-08-13)
     * Added webhook storing
 
