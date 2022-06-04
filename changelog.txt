@@ -1,4 +1,4 @@
-- Changelog for v0.6.0 (2022-06-04)
+- Changelog for v0.5.1 (2022-06-04)
     * removing webhook url from link
 
 
