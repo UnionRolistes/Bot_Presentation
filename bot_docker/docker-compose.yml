@@ -1,0 +1,21 @@
+name: uniondesroliste
+
+# services:
+#   bot_base:
+#     volumes:
+#       - ../../Bot_Presentation/bot_docker/extends/prez:/app/extends/prez:rw
+#   httpd:
+#     volumes:
+#       - ../../Bot_Presentation/bot_docker/web/www/:/usr/local/apache2/htdocs/Web_Presentation/
+#       - ../../Bot_Presentation/bot_docker/web/vhost/UR_Prez.conf:/usr/local/apache2/vhosts/UR_Prez.conf
+services:
+  bot_base:
+    volumes:
+      - ../../Bot_Presentation/bot_docker/extends/prez:/app/extends/prez:rw
+  php:
+    volumes:
+      - ../../Bot_Presentation/bot_docker/web/www/:/var/www/html/
+    environment:
+      - CLIENT_ID=1111111111
+      - CLIENT_SECRET=1111111111
+      - REDIRECT_URI=http://presentation.unionrolistes.fr/php/get_token.php

@@ -1,0 +1,46 @@
+body {
+  /* background-color: #23272A; */
+  background-color: hsl(19, 86%, 46%);
+  color: white;
+}
+#URform {
+  background: #2c2f33;
+}
+
+/*inputs et boutons : */
+
+input,
+button,
+select,
+textarea {
+  border: 1px solid gray !important;
+  transition: 0.2s ease-in-out;
+  transition-property: color, background-color, border;
+}
+
+input[type='text'] {
+  width: 100%;
+  border: 3px solid white;
+  -webkit-appearance: none;
+}
+
+button,
+option {
+  color: white;
+}
+
+#submit {
+  background-color: gray;
+}
+
+select {
+  border: 1px solid gray;
+}
+
+textarea,
+input[type='text'],
+input[type='number'],
+select {
+  background-color: #23272a;
+  color: white;
+}
