@@ -13,6 +13,8 @@ service:
       - REDIRECT_URI=http://presentation.unionrolistes.fr/php/get_token.php
 ```
 
+ > needed for the web form
+
 ## bot
 
 add $prez to the bot
