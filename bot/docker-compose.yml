@@ -3,11 +3,11 @@ name: uniondesroliste
 services:
   bot_base:
     volumes:
-      - ../../Bot_Presentation/bot_docker/extends/prez:/app/extends/prez:ro
+      - ../../Bot_Presentation/bot/extends/prez:/app/extends/prez:ro
   php:
     volumes:
-      - ../../Bot_Presentation/bot_docker/web/www/:/var/www/html/Web_Presentation/:ro
-      - ../../Bot_Presentation/bot_docker/web/vhost/200-UR_Prez.conf:/etc/apache2/sites-enabled/200-UR_Prez.conf:ro
+      - ../../Bot_Presentation/bot/web/www/:/var/www/html/Web_Presentation/:ro
+      - ../../Bot_Presentation/bot/web/vhost/200-UR_Prez.conf:/etc/apache2/sites-enabled/200-UR_Prez.conf:ro
     environment:
       - CLIENT_ID=1111111111 # for oauth2 discord
       - CLIENT_SECRET=1111111111 # for oauth2 discord
