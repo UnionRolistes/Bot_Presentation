@@ -1,4 +1,5 @@
 import asyncio
+import discord
 from discord.ext import commands
 
 
@@ -15,7 +16,7 @@ class Prez(commands.Cog, name='prez'):
         embed = discord.Embed(url="http://presentation.unionrolistes.fr/?webhook=https://discord.com/api/webhooks/875068900612665396/DJusy0eGs9Xyx2os-dodBVfWia2fbhfBzfmnDM9g-30ozoFYAuZBHVXaD9TKaC1wwBwg",
                               description="⬆️ Here is the link to create your presentation.", title="Union Roliste - Presentation", color=0x0CC1EE)
         embed.set_author(name=event.author.display_name,
-                         icon_url=event.author.avatar_url)
+                         icon_url=event.author.avatar)
         DATA = ["**:pen_ballpoint:  Nom\n**", "**:pen_ballpoint:  Prenom\n**", ":round_pushpin:  **Address\n**", ":telephone:   **N° Telephone\n**",
                 ":postbox: **Code postal\n**", "**:computer:  Support (Windows / Linux / Mac)\n**", "**Expérience en programmation\n**"]
         embed.add_field(

@@ -10,7 +10,7 @@ $params = array(
     "grant_type" => "authorization_code",
     "client_id" => CLIENT_ID,
     "client_secret" => CLIENT_SECRET,
-    "redirect_uri" => 'http://presentation.unionrolistes.fr/php/get_token.php',
+    "redirect_uri" => URL_SITE . REDIRECT_URI,
     "code" => $_GET['code']
 );
 
@@ -20,15 +20,15 @@ if (
     !curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE) or
     !curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params))
 ) {
-   print("Échec de l'obtention du token oauth2. Contactez un administrateur si le problème perdure.");
-   error_log("OAUTH2_ERROR| Échec de l'obtention du token.");
-   die();
+    print("Échec de l'obtention du token oauth2. Contactez un administrateur si le problème perdure.");
+    error_log("OAUTH2_ERROR| Échec de l'obtention du token.");
+    die();
 }
 $response = json_decode(curl_exec($ch));
 
 assert_curl_success($ch);
 $token = $response->access_token;
-    
+
 $_SESSION['access_token'] = $token;
 header('Location: /php/get_user_information.php');
 ?>

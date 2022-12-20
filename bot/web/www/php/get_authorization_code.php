@@ -3,7 +3,7 @@ require('config.php');
 $params = array(
     'response_type' => 'code',
     'client_id' => CLIENT_ID,
-    'redirect_uri' => REDIRECT_URI,
+    'redirect_uri' => URL_SITE . REDIRECT_URI,
     // 'redirect_uri' => 'http://presentation.unionrolistes.fr/php/get_token.php',
     'scope' => 'identify'
 );
