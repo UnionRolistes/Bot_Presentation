@@ -1,5 +1,6 @@
 <?php
 session_start();
+header("Access-Control-Allow-Origin: *");
 
 if (isset($_GET['webhook']))
     $_SESSION['webhook'] = $_GET['webhook'];
@@ -48,15 +49,15 @@ $tranches = $xml->tranche;
     <h1 class="titleCenter">Formulaire de présentation</h2>
 
         <?php
-if (isset($_GET['error'])) {
-    //Affichage des erreurs. Rajouter des lignes si on rajoute d'autres codes d'erreurs (optimisable en les mettant dans un fichier si on commence à en avoir beaucoup)
-    $error = $_GET['error'];
-    if ($error == 'invalidData' && isset($_GET['type']))
-        echo '<span class="rouge">Données invalides. ' . $_GET['type'] . '</span>';
-    if ($error == 'isPosted')
-        echo '<span class="vert">Votre présentation a bien été postée</span>';
-}
-?>
+        if (isset($_GET['error'])) {
+            //Affichage des erreurs. Rajouter des lignes si on rajoute d'autres codes d'erreurs (optimisable en les mettant dans un fichier si on commence à en avoir beaucoup)
+            $error = $_GET['error'];
+            if ($error == 'invalidData' && isset($_GET['type']))
+                echo '<span class="rouge">Données invalides. ' . $_GET['type'] . '</span>';
+            if ($error == 'isPosted')
+                echo '<span class="vert">Votre présentation a bien été postée</span>';
+        }
+        ?>
 
         <div id="modeDiv">
             <label id="mode">Sombre 🌙</label>
@@ -67,8 +68,8 @@ if (isset($_GET['error'])) {
             </label>
         </div>
 
-        <form method=post action="cgi/pres/create_presentation.py" name="URform" id="URform"
-            onsubmit="alert('Présentation validée ! Envoi en cours')">
+        <form method=post action="http://api.unionrolistes.fr:3000/prez/create" name="URform" id="URform"
+            onsubmit="sendForm(event)">
 
             <!-- Connection area -->
             <input type=hidden name="webhook_url"
@@ -81,16 +82,19 @@ if (isset($_GET['error'])) {
                 <legend>Connexion Discord <span class="rouge">*</span></legend>
                 <!--<label>Connexion Discord <span class="rouge">*</span></label>-->
                 <?php
-    if (isset($_SESSION['avatar_url']) and isset($_SESSION['username'])) {
-        echo '<div>';
-        echo "<img id='username' src=\"" . $_SESSION['avatar_url'] . "\"/>";
-        echo $_SESSION['username'];
-        echo '<input type="button" value="Deconnexion" id="deconnexion" onclick="window.location.href=\'php/logout.php\'"/>';
-        echo '</div>';
-    } else
-        echo '<div><input type="button" value="Me connecter" id="connexion" onclick="window.location.href=\'php/get_authorization_code.php\'"/></div>'
-        ?>
+                if (isset($_SESSION['avatar_url']) and isset($_SESSION['username'])) {
+                    echo '<div>';
+                    echo "<img id='username' src=\"" . $_SESSION['avatar_url'] . "\"/>";
+                    echo $_SESSION['username'];
+                    echo '<input type="button" value="Deconnexion" id="deconnexion" onclick="window.location.href=\'php/logout.php\'"/>';
+                    echo '</div>';
+                } else
+                    echo '<div><input type="button" value="Me connecter" id="connexion" onclick="window.location.href=\'php/get_authorization_code.php\'"/></div>'
+                    ?>
+                <input type="hidden" name="access_token"
+                    value="<?= isset($_SESSION['access_token']) ? $_SESSION['access_token'] : "" ?>">
             </fieldset>
+
 
 
             <label>Région : <span class="rouge">*</span></label>
@@ -154,19 +158,19 @@ if (isset($_GET['error'])) {
             <select id="infoJDR"> <!--Juste là pour l'information, ne sera pas envoyé au serveur-->
                 <option selected value="">INFO : liste des JdR proposés</option>
                 <?php
-        if (!file_exists('data/jdr_systems.xml')) {
-            exit('Echec lors de la récupération des parties');
-        }
-        # Generates all the options from an xml file
-        $systems = simplexml_load_file("data/jdr_systems.xml");
-        foreach ($systems as $optgroup) {
-            echo '<optgroup label ="' . $optgroup['label'] . '">';
-            foreach ($optgroup as $option) {
-                echo '<option disabled>' . $option . '</option>';
-            }
-            echo '</optgroup>';
-        }
-        ?>
+                if (!file_exists('data/jdr_systems.xml')) {
+                    exit('Echec lors de la récupération des parties');
+                }
+                # Generates all the options from an xml file
+                $systems = simplexml_load_file("data/jdr_systems.xml");
+                foreach ($systems as $optgroup) {
+                    echo '<optgroup label ="' . $optgroup['label'] . '">';
+                    foreach ($optgroup as $option) {
+                        echo '<option disabled>' . $option . '</option>';
+                    }
+                    echo '</optgroup>';
+                }
+                ?>
             </select>
 
             <label>JDR 🎲: <span class="rouge">*</span></label>
@@ -206,10 +210,10 @@ if (isset($_GET['error'])) {
                 <br><br>
                 <button type="submit" name="submit" id="submit" <?php if (!isset($_SESSION['avatar_url']) or
                     !isset($_SESSION['username'])) {
-            echo 'disabled ><b>Veuillez vous connecter';
-        } else {
-            echo
-                    'style="background-color:#169719;"' ?>><b>Valider ✔
+                    echo 'disabled ><b>Veuillez vous connecter';
+                } else {
+                    echo
+                        'style="background-color:#169719;"' ?>><b>Valider ✔
                         <?php } ?>
                     </b></button>
                 <!--Bloque le bouton si on s'est pas connecté-->
@@ -222,6 +226,47 @@ if (isset($_GET['error'])) {
         <?php echo getenv('TEST'); ?>
 
         <script src="js/record_form.js"></script>
+        <!-- nedd to be moved to specific file -->
+        <script>
+
+
+            function sendForm(e) {
+                alert("test")
+                console.log("start sending")
+
+                //prevent the form from submitting normally
+                e.preventDefault()
+                //fetch the data in the form
+                var formData = new FormData(document.getElementById("URform"))
+                //get form url
+                var url = document.getElementById("URform").getAttribute("action")
+                //send the form data to the server
+                console.log(formData)
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + '<?= $_SESSION['access_token'] ?>',
+                    },
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("respond")
+                        if (data.status == "success") {
+                            console.log("success")
+                            //display success message
+                            document.getElementById("URform").innerHTML = "<h3>" + data.message + "</h3>"
+                        } else {
+                            console.log("error")
+                            console.log(data.message)
+
+                            //display error message
+                            document.getElementById("URform").innerHTML = "<h3>" + data.message + "</h3>"
+                        }
+                    })
+            }
+        </script>
 </body>
 <?php include('php/footer.html'); ?>
 
