@@ -68,7 +68,7 @@ $tranches = $xml->tranche;
             </label>
         </div>
 
-        <form method=post action="http://api.unionrolistes.fr:3000/prez/create" name="URform" id="URform"
+        <form method=post action="http://api.unionrolistes.fr:80/prez/create" name="URform" id="URform"
             onsubmit="sendForm(event)">
 
             <!-- Connection area -->
@@ -120,7 +120,7 @@ $tranches = $xml->tranche;
             </label>
             <input type="number" name="age" id="age" min="1" max="150" required placeholder="20 ans, 27 ans, ..">
 
-            <select name="trancheAge" id="trancheAge" style="display: none">
+            <select name="age" id="trancheAge" style="display: none">
                 <option value="" selected>--Choisir--</option>
 
                 <?php foreach ($tranches as $tranche) { ?>
@@ -174,7 +174,7 @@ $tranches = $xml->tranche;
             </select>
 
             <label>JDR 🎲: <span class="rouge">*</span></label>
-            <input type="text" name="JDR" id="JDR" placeholder="Vos JDR préférés" required>
+            <input type="text" name="jdr" id="jdr" placeholder="Vos JDR préférés" required>
 
 
             <label>J'aime :</label>
@@ -228,41 +228,50 @@ $tranches = $xml->tranche;
         <script src="js/record_form.js"></script>
         <!-- nedd to be moved to specific file -->
         <script>
-
-
             function sendForm(e) {
-                alert("test")
-                console.log("start sending")
-
-                //prevent the form from submitting normally
+                // Empêche le formulaire de soumettre normalement
                 e.preventDefault()
-                //fetch the data in the form
+
+                // Récupère les données du formulaire
                 var formData = new FormData(document.getElementById("URform"))
-                //get form url
+                // Récupère l'URL du formulaire
                 var url = document.getElementById("URform").getAttribute("action")
-                //send the form data to the server
-                console.log(formData)
+
+                // Envoie les données du formulaire au serveur
                 fetch(url, {
                     method: "POST",
                     headers: {
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + '<?= $_SESSION['access_token'] ?>',
+                        "Content-type": "application/json",
+                        Authorization: "Bearer " + "<?= $_SESSION['access_token'] ?>",
                     },
-                    body: formData,
+                    body: JSON.stringify(Object.fromEntries(formData)),
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("respond")
-                        if (data.status == "success") {
-                            console.log("success")
-                            //display success message
-                            document.getElementById("URform").innerHTML = "<h3>" + data.message + "</h3>"
+                    .then(async (response) => {
+                        data = {
+                            status: response.status,
+                            statusText: response.statusText,
+                            headers: response.headers,
+                            url: response.url,
+                            ok: response.ok,
+                            data: await response.json()
+                        }
+                        return data
+                    })
+                    .then((data) => {
+                        console.log(data)
+                        if (data.ok) {
+                            // Si la réponse est bonne, ont dit que c'est ok
+                            document.getElementById("URform").innerHTML =
+                                `<h3 class="center-all" '>Votre fiche a bien été envoyée</h3>
+                                <button class="center-all" onClick="window.location.reload();">retour</button>`
                         } else {
-                            console.log("error")
-                            console.log(data.message)
+                            // Sinon on dit que c'est pas bon et on affiche l'erreur example ```{"detail": [{"loc": ["string",0],"msg": "string","type": "string"}]}```
+                            document.getElementById("URform").innerHTML =
+                                `<h3 class="center-all">Erreur : ${data.data.detail[0].msg == "field required" ? "entré requis" : data.data.detail}</h3>
+                                <p class="center-all" >Erreur : ${data.data.detail[0].loc[1]}</p>
+                                <button class="center-all" onClick="window.location.reload();">retour</button>
 
-                            //display error message
-                            document.getElementById("URform").innerHTML = "<h3>" + data.message + "</h3>"
+                                `
                         }
                     })
             }

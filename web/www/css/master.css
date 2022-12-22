@@ -1,16 +1,17 @@
 /*Contient le CSS commun aux versions Dark et Light. Cad la disposition du formulaire.
 Pour les couleurs de chaque thème, voir styleDark et styleLight*/
-@import url("switchButton.css"); /*CSS du bouton de changement de mode de couleur*/
+@import url('switchButton.css'); /*CSS du bouton de changement de mode de couleur*/
 
 /*UR_Bot © 2020 by "Association Union des Rôlistes & co" is licensed under Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA)
 To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
 Ask a derogation at Contact.unionrolistes@gmail.com*/
 
-
 /*Police et taille d'écriture : */
 html {
   /* 1 */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   font-size: 16px;
   font-weight: normal;
   line-height: 1.5;
@@ -21,149 +22,168 @@ html {
   color: #666;
 }
 
+body {
+  margin: 0;
+  /* padding: 20px; */
+  overflow: auto;
+  display: flex;
 
-body{
-margin: 0;
-padding: 20px;
-overflow: auto;
+  min-height: 100vh;
+  flex-direction: column;
 }
-.titleCenter{
-text-align: center;
+.titleCenter {
+  text-align: center;
 }
-
 
 /*Grid layout : */
 #URform {
-    display: grid;
-    grid-template-columns: [labels] auto [controls] 1fr;
-    grid-auto-flow: row;
-    grid-gap: 1.6em .11em; /*Distance verticale puis horizontale entre les éléments*/
-    padding: 1.2em;
-    width: 50%; /*Taille horizontale du formulaire*/
-  
-    border : 1px solid #000;
-    margin-left: 23%; /*Distance du formulaire par rapport au bord de la fenêtre*/
-    box-shadow: 5px 8px 6px black;
+  display: grid;
+  grid-template-columns: [labels] auto [controls] 1fr;
+  grid-auto-flow: row;
+  grid-gap: 1.6em 0.11em; /*Distance verticale puis horizontale entre les éléments*/
+  padding: 1.2em;
+  width: 50%; /*Taille horizontale du formulaire*/
+  border: 1px solid #000;
+  box-shadow: 5px 8px 6px black;
+  margin: auto;
+  min-height: 2rem;
 }
 
 /*Liste des éléments qui doivent s'afficher à gauche :*/
 #URform > label,
-#URform > fieldset  {
+#URform > fieldset {
   grid-column: labels;
   grid-row: auto;
 }
 
 /*Liste des éléments qui doivent s'afficher à droite :*/
-#URform > input, 
+#URform > input,
 #URform > select,
 #URform > textarea,
 #URform > button {
   grid-column: controls;
   grid-row: auto;
-  padding: .4em;
+  padding: 0.4em;
 }
 #URform > fieldset {
   grid-column: span 2;
-}  
+}
 
 #URform > textarea {
   min-height: 3em;
 }
 
-
 /*Other :*/
 
-button{
+button {
   width: 100%;
-  height: 40%;
+  /* height: 40%; */
   border-radius: 5px !important;
   background-color: transparent;
 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-text-size-adjust: 100%;
   font-weight: normal;
   line-height: 1.5;
 }
 
-#trancheAge, #age{
+#trancheAge,
+#age {
   width: 100%;
   text-align: left;
 }
 
-.beta{
-  text-align:center;
-  margin-top:5vh;
-  font-size:14px;
-  color:rgb(218, 31, 31);
-  font-family:mono;
+.beta {
+  text-align: center;
+  margin-top: 5vh;
+  font-size: 14px;
+  color: rgb(218, 31, 31);
+  font-family: mono;
 }
 
-.rouge{color: red;}
-.vert{color: rgb(25, 219, 25);}
-
-#connexion, #deconnexion{
-    border-radius:5px;
-    background-color:rgb(207, 204, 204);
-    height: 30px;
+.rouge {
+  color: red;
 }
-#deconnexion{margin-left: 4%;}
-#connectField{
+.vert {
+  color: rgb(25, 219, 25);
+}
+
+#connexion,
+#deconnexion {
+  border-radius: 5px;
+  background-color: rgb(207, 204, 204);
+  height: 30px;
+}
+#deconnexion {
+  margin-left: 4%;
+}
+#connectField {
   text-align: center;
 }
 
-
 button:disabled,
-button[disabled]{
+button[disabled] {
   border: 1px solid #999999;
   background-color: #cccccc;
   color: white;
 }
 
-textarea{width:100%;}
+textarea {
+  width: 100%;
+}
 
-a{
+a {
   text-decoration: none;
   color: rgb(40, 40, 199);
 }
 
-option[disabled] {color: rgb(245, 245, 245);}
+option[disabled] {
+  color: rgb(245, 245, 245);
+}
 
-input[type="text"], input[type="number"], select{
+input[type='text'],
+input[type='number'],
+select {
   text-align: left;
 }
 
+#region {
+  width: 100%;
+}
 
-#region{width: 100%;}
-
-
+.center-all {
+  grid-column: span 2;
+  text-align: center;
+}
 
 /*Pour le responsive et affichage mobile :*/
 @-ms-viewport {
-  width: device-width ;
+  width: device-width;
 }
 
-
-@media screen and (max-width:1050px){
+@media screen and (max-width: 1050px) {
   /* Pour les ecrans de moins de 1050 pixels de large */
 
-  #URform { /*On supprime les espaces vides autour du formulaire */
-    width: 95%; 
+  #URform {
+    /*On supprime les espaces vides autour du formulaire */
+    width: 95%;
     font-size: 13px;
 
-    border : 1px solid #000;
+    border: 1px solid #000;
     box-shadow: 5px 8px 6px black;
     margin-left: 0;
-    margin:0;
+    margin: 0;
   }
 }
 
-@media screen and (max-width:450px){
-
+@media screen and (max-width: 450px) {
   #URform {
     grid-gap: 1em 2%; /*Distance verticale puis horizontale entre les éléments*/
     padding: 1em;
   }
-  #submit{
-    height: 50%;    
+  #submit {
+    height: 50%;
   }
 }

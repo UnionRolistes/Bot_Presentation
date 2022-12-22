@@ -2,8 +2,8 @@ from enum import Enum
 import json
 from fastapi import APIRouter, Header, HTTPException, Depends
 from fastapi.security import HTTPBearer
-from pydantic import BaseModel
-from ..base._discord import get_discord_client
+from pydantic import BaseModel, Field
+from ..base._discord import get_discord_client  # in base api repo
 import requests
 import re
 from dotenv import load_dotenv
@@ -55,14 +55,14 @@ class AgeRange(str, Enum):
 
 class postInput(BaseModel):
     region: Region
-    ville: None | str  # = Body(max_length=80, min_length=3)
-    age: int | AgeRange  # = Body(..., ge=0),  # ... for  needed (obligatory)
+    ville: None | str
+    age: int | AgeRange = Field(alias="ageRange")
     # Ancienneté dans le JDR
-    experience: str | None  # = Body(max_length=80, min_length=3)
+    experience: str | None
     # Comment avez-vous connu le serveur ?
-    connaissance: str  # = Body(max_length=80, min_length=3)
+    connaissance: str
     # Hobby
-    hobby: str | None  # = Body(max_length=80, min_length=3)
+    hobby: str | None
     # mj et ou joueur (checkbox)
     mj: bool = False
     pj: bool = False
