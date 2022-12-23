@@ -1,0 +1,6 @@
+Presentation_extension : Création de profil et accueil
+  contributeurs :
+    - Mortifia#7249
+    - Eὔδοξος#2170
+    - Lyss#4053
+    - Maestro#8364
