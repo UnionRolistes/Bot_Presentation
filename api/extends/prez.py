@@ -85,6 +85,9 @@ class postInput(BaseModel):
     # Je suis intéressé par du JDR grandeur nature
     gn: bool = False
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 # start
 security = HTTPBearer()
@@ -97,13 +100,17 @@ router = APIRouter(
 
 # dependancie that check discord oauth token and get user info
 async def check_token_dep(authorization: HTTPBearer = Depends(security)):
+    print('check_token_dep')
     if authorization:
         token = authorization.credentials
         try:
+            print('try')
             response = requests.get("https://discord.com/api/users/@me", headers={
                 "Authorization": f"Bearer {token}"
             })
+            print('response')
             user = response.json()
+            print(f'user : {user}')
             return user
         except Exception as e:
             print(e)
@@ -118,7 +125,12 @@ async def prez():
 
 
 @ router.post("/create", tags=["prez"])
-async def createPrez(input: postInput, user: dict = Depends(check_token_dep), discord_client: Client = Depends(get_discord_client)):
+async def createPrez(input: postInput, user: dict = Depends(check_token_dep),
+                     discord_client: Client = Depends(discord_client)
+                     ):
+    print(f"coucou : {discord_client}")
+    print(f"coucou 2 : {discord_client.get_channel}")
+    #print(f"coucou2 : {discord_client.get_channel}")
     msg = ""  # res
 
     checks = []

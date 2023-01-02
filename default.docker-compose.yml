@@ -1,0 +1,23 @@
+name: Union-des-rolistes
+
+services:
+  bot:
+    environment:
+      - BOT_PREZ_VERSION=1.0.0
+      - URL_SITE_PRESENTATION=http://presentation.unionrolistes.fr # prez url
+    volumes:
+      - ../Bot_Presentation/bot/extends/:/app/extends/prez/:ro #add folder as "prez" in extends container
+  api:
+    environment:
+      - PREZ_CHANNEL=__________ # discord channel id to send prez
+    volumes:
+      - ../Bot_Presentation/api/extends/:/app/extends/prez/:ro #add folder as "prez" in extends container
+  php:
+    volumes:
+      - ../Bot_Presentation/web/www/:/var/www/html/Web_Presentation/:ro
+      - ../Bot_Presentation/web/vhost/200-UR_Prez.conf:/etc/apache2/sites-enabled/200-UR_Prez.conf:ro
+    environment:
+      - CLIENT_ID=__________ # for oauth2 discord
+      - CLIENT_SECRET=__________ # for oauth2 discord
+      - REDIRECT_URI=/php/get_token.php # for oauth2 discord
+      - URL_SITE_PRESENTATION=http://presentation.unionrolistes.fr # for oauth2 discord
