@@ -11,7 +11,7 @@ PREZ_URL = os.getenv('URL_SITE_PRESENTATION')
 print(f'VERSION_PREZ : {VERSION}')
 
 
-class Prez(commands.Cog, name='prez'):
+class Prez(commands.Cog, name='Prez'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._last_member = None
@@ -19,7 +19,7 @@ class Prez(commands.Cog, name='prez'):
     async def cog_load(self):  # called when the cog is loaded
         print(self.__class__.__name__ + " is loaded")
 
-    @commands.command(name="prez")
+    @commands.command(name="prez", help='envoie un lien pour se présenter', aliases=['presentation'],)
     async def prez(Self, event):
         await event.author.send(f'veuiller suivre le lient suivant : {PREZ_URL}')
 

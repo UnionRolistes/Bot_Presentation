@@ -128,11 +128,7 @@ async def prez():
 async def createPrez(input: postInput, user: dict = Depends(check_token_dep),
                      discord_client: Client = Depends(discord_client)
                      ):
-    print(f"coucou : {discord_client}")
-    print(f"coucou 2 : {discord_client.get_channel}")
-    #print(f"coucou2 : {discord_client.get_channel}")
-    msg = ""  # res
-
+    msg = ""  # response message
     checks = []
     if input.news:
         checks.append("**News: ** ✅")
