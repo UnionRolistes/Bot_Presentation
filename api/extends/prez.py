@@ -126,7 +126,7 @@ async def prez():
 
 @ router.post("/create", tags=["prez"])
 async def createPrez(input: postInput, user: dict = Depends(check_token_dep),
-                     discord_client: Client = Depends(discord_client)
+                     discord_client: Client = Depends(get_discord_client)
                      ):
     msg = ""  # response message
     checks = []
