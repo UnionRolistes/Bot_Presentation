@@ -142,3 +142,5 @@ cython_debug/
 
 # Bot Key
 key.txt
+
+docker-compose.yml
