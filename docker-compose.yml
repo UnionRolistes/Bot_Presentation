@@ -6,16 +6,16 @@ services:
       - BOT_PREZ_VERSION=1.0.0
       - URL_SITE_PRESENTATION=http://presentation.unionrolistes.fr # prez url
     volumes:
-      - ../Bot_Presentation/bot/extends/:/app/extends/prez/:ro #add folder as "prez" in extends container
+      - ${PWD}/../Bot_Presentation/bot/extends/:/app/extends/prez/:ro #add folder as "prez" in extends container
   api:
     environment:
       - PREZ_CHANNEL=457225906075729921
     volumes:
-      - ../Bot_Presentation/api/extends/:/app/extends/prez/:ro #add folder as "prez" in extends container
+      - ${PWD}/../Bot_Presentation/api/extends/:/app/extends/prez/:ro #add folder as "prez" in extends container
   php:
     volumes:
-      - ../Bot_Presentation/web/www/:/var/www/html/Web_Presentation/:ro
-      - ../Bot_Presentation/web/vhost/200-UR_Prez.conf:/etc/apache2/sites-enabled/200-UR_Prez.conf:ro
+      - ${PWD}/../Bot_Presentation/web/www/:/var/www/html/Web_Presentation/:ro
+      - ${PWD}/../Bot_Presentation/web/vhost/200-UR_Prez.conf:/etc/apache2/sites-enabled/200-UR_Prez.conf:ro
     environment:
       - CLIENT_ID=1025006085272260658 # for oauth2 discord
       - CLIENT_SECRET=ylKQ8_6e0WMm_xE-jefOLipebncjativ # for oauth2 discord
