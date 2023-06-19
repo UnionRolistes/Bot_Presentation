@@ -21,3 +21,12 @@ Voir src/cog_presentation/info/credits.txt
 
 # Donation link 
 http://site.unionrolistes.fr/
+
+## Développer sous windows avec BotBase
+```cmd
+ cmd /c mklink /D ..\Bot_Base\bot\extends\Presentation ..\..\..\Bot_Presentation\bot\extends 
+```
+Penser à ajouter les variables d'environnement
+
+L'utilisation du lien symbolique est la meilleur solution dans ce cas.
+car copier-coler a chaque fois ou git submodule sont des solution plus compliquer a tester pour dev.
