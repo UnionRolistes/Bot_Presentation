@@ -19,9 +19,13 @@ class Prez(commands.Cog, name='Prez'):
     async def cog_load(self):  # called when the cog is loaded
         print(self.__class__.__name__ + " is loaded")
 
-    @commands.command(name="prez", help='envoie un lien pour se présenter', aliases=['presentation'],)
-    async def prez(Self, event):
-        await event.author.send(f'veuiller suivre le lient suivant : {PREZ_URL}')
+    @commands.command(name="prez", help='envoie un lien pour se présenter', aliases=['presentation'])
+    async def prez(self, event):
+        await event.author.send(f'Veuillez suivre le lien suivant : {PREZ_URL}')
+        channel = event.channel
+        await channel.send("Un lien a été envoyé dans vos messages privés pour vous présenter dignement !")
+
+
 
 
 async def setup(bot):
