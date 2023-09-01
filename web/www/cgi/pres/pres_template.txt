@@ -1,6 +1,6 @@
 # !**GMT :** +1 (france ) -
 **Pseudo :**  {pseudo}
-**Domicile **  {home}
+**Domicile :**  {home}
 **Age :**  {age}
 **Ancienneté dans le JdR :**  {experience}
 **Comment avez vous connu le serveur :**  {origin}

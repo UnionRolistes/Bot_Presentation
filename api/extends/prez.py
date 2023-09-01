@@ -143,8 +143,8 @@ async def createPrez(input: postInput, user: dict = Depends(check_token_dep),
 
     kwargs = {
         'pseudo': f"<@{user['id']}> [{user['username']}]",
-        'home': f"{input.region}{' - ' + input.ville if input.ville else ''}",
-        'age': input.age,
+        'home': f"{input.region.value}{' - ' + input.ville if input.ville else ''}",
+        'age': input.age.value,
         'experience': input.experience,
         'origin':  input.connaissance,
         'hobby': input.hobby,
