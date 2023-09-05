@@ -1,4 +1,4 @@
-name: Assign "à faire" Label to New Issues
+name: Ajouter une nouvelle issue à la backlog
 
 on:
   issues:
@@ -6,19 +6,20 @@ on:
       - opened
 
 jobs:
-  assign-label:
+  add_to_backlog:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Add "🆕 A Faire" label
-        run: |
-          ISSUE_NUMBER=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
-          echo "Adding 'à faire' label to issue #$ISSUE_NUMBER"
-          gh issue edit $ISSUE_NUMBER --add-label "à faire"
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+      - name: Ajouter l'issue à la backlog
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const backlogProjectId = 1;
+            const issueNumber = context.payload.issue.number;
+            
+            const octokit = github.getOctokit(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);
+            octokit.projects.createCard({
+              column_id: backlogProjectId,
+              content_id: issueNumber,
+              content_type: "Issue"
+            });
