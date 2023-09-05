@@ -1,0 +1,24 @@
+name: Assign "à faire" Label to New Issues
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  assign-label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Add "🆕 A Faire" label
+        run: |
+          ISSUE_NUMBER=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
+          echo "Adding 'à faire' label to issue #$ISSUE_NUMBER"
+          gh issue edit $ISSUE_NUMBER --add-label "à faire"
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
