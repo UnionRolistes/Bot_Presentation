@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Ajouter l'issue à la backlog
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const backlogProjectId = 1;
