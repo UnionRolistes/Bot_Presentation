@@ -1,4 +1,4 @@
-- name: Add To GitHub projects
+name: Add To GitHub projects
   uses: actions/add-to-project@v0.5.0
   with:
     # URL of the project to add issues to
