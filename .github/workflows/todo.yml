@@ -17,7 +17,7 @@ jobs:
             const backlogProjectId = 1;
             const issueNumber = context.payload.issue.number;
             
-            const octokit = github.getOctokit(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);
+            const octokit = github.getOctokit('{{TEST}}');
             octokit.projects.createCard({
               column_id: backlogProjectId,
               content_id: issueNumber,
