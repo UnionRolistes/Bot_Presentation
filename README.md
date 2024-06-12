@@ -2,7 +2,7 @@
 ============
 Description
 -------------
-Le BotPresentation(Python3.7) permet à un utilisateur d'accéder à un formulaire de présentation via la commande $prez. 
+Le BotPresentation(Python3.8) permet à un utilisateur d'accéder à un formulaire de présentation via la commande $prez. 
 Les informations saisies sont ensuite mises en forme et postées sur le discord de l'union des Rôlistes via un Webhook dans la section #presentation
 
 
