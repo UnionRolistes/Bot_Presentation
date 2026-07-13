@@ -8,7 +8,7 @@ from urpy import utils, lcl, MyBot
 import cog_presentation.info
 from cog_presentation import strings
 from cog_presentation import settings
-from urpy.utils import error_log
+from urpy.utils import error_log, colored_message, SUCCESS_COLOR, ERROR_COLOR
 import pickle
 import os
 from pathlib import Path
@@ -45,7 +45,7 @@ class Presentation(urpy.MyCog):
         # TODO fix contexts shenanigans
         # checks that $cal is called in the right place
         if isinstance(ctx.channel, discord.DMChannel):
-            await base_ctx.send(_(strings.on_prez_dm_channel))
+            await base_ctx.send(colored_message(_(strings.on_prez_dm_channel), ERROR_COLOR))
         elif isinstance(ctx.channel, discord.TextChannel):
             anncmnt_channel = discord.utils.get(ctx.guild.channels, name=settings.announcement_channel)
             if not anncmnt_channel:
@@ -78,11 +78,11 @@ class Presentation(urpy.MyCog):
                 except discord.errors.Forbidden:
                     error_log("Impossible d'obtenir les webhooks.",  # TODO change to english
                               "Le bot nécessite la permission de gérer les webhooks")
-                    await ctx.author.send(strings.on_permission_error)
+                    await ctx.author.send(colored_message(strings.on_permission_error, ERROR_COLOR))
                 except IndexError:
                     await ctx.send(_(strings.on_prez_webhook_not_found.format(channel=settings.announcement_channel)))
                 else:
-                    await ctx.send(_(strings.on_prez))
+                    await ctx.send(colored_message(_(strings.on_prez), SUCCESS_COLOR))
                     await ctx.author.send(
                         strings.on_prez_link.format(link=f"http://presentation.unionrolistes.fr"))
                             #?webhook={webhook.url}"))
