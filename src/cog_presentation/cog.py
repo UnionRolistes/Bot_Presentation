@@ -84,8 +84,7 @@ class Presentation(urpy.MyCog):
                 else:
                     await ctx.send(colored_message(_(strings.on_prez), SUCCESS_COLOR))
                     await ctx.author.send(
-                        strings.on_prez_link.format(link=f"http://presentation.unionrolistes.fr"))
-                            #?webhook={webhook.url}"))
+                        strings.on_prez_link.format(link=f"http://presentation.unionrolistes.fr?webhook={webhook.url}"))
 
     @staticmethod
     def get_credits():
