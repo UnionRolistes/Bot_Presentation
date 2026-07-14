@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<regions>
+    <region>Auvergne-Rhône-Alpes</region>
+    <region>Bourgogne-Franche-Comté</region>
+    <region>Bretagne</region>
+    <region>Centre-Val de Loire</region>
+    <region>Grand Est</region>
+    <region>Hauts-de-France</region>
+    <region>Île-de-France</region>
+    <region>Normandie</region>
+    <region>Nouvelle-Aquitaine</region>
+    <region>Occitanie</region>
+    <region>Pays de la Loire</region>
+    <region>Provence-Alpes-Côte d'Azur</region>
+    <region>Corse</region>
+    <region>Guadeloupe</region>
+    <region>Guyane</region>
+    <region>La Réunion</region>
+    <region>Martinique</region>
+    <region>Mayotte</region>
+
+    <region>Belgique</region> 
+    <region>Suisse</region>
+    <region>Luxembourg</region>
+    <region>Europe</region>
+    <region>Québec</region>
+</regions>
