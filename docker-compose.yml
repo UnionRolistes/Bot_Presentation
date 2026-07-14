@@ -1,0 +1,18 @@
+################################################################
+# Formulaire de présentation (presentation.unionrolistes.fr).
+# Déployé comme stack Komodo séparée de celle du bot lui-même (web_presentation
+# vs base_base) — même repo, conteneurs indépendants.
+################################################################
+services:
+  web-presentation:
+    build:
+      context: web
+      dockerfile: Dockerfile
+    container_name: web-presentation
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    environment:
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
