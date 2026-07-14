@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tranches>
+    <tranche>Mineur -15</tranche>
+    <tranche>Mineur +15</tranche>
+    <tranche>18/20</tranche>
+    <tranche>20/30</tranche>
+    <tranche>30/40</tranche>
+    <tranche>40/50</tranche>
+    <tranche>50/60</tranche>
+    <tranche>60/70</tranche>
+    <tranche>70/80</tranche>
+    <tranche>80+</tranche>
+</tranches>
