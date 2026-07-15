@@ -6,11 +6,11 @@
 # d'interpréteur Python, plus de mod_cgi dans ce conteneur.
 FROM php:8.4-apache
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libcurl4-openssl-dev \
-    && docker-php-ext-install curl \
-    && a2enmod rewrite \
-    && rm -rf /var/lib/apt/lists/*
+# curl est déjà compilé statiquement dans php:8.4-apache (php -m | grep curl
+# le montre sans rien installer) — docker-php-ext-install curl ne servait
+# qu'à recompiler une extension déjà présente, coûtant les headers -dev
+# (libcurl4-openssl-dev) pour rien. a2enmod ne nécessite aucun paquet apt.
+RUN a2enmod rewrite
 
 COPY www/ /var/www/html/
 
