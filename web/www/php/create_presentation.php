@@ -12,7 +12,7 @@
 // pas de comportement nouveau ajouté ici.
 
 function redirect_and_exit($status, $extra = '') {
-    header("Location: http://presentation.unionrolistes.fr?error={$status}{$extra}", true, 303);
+    header("Location: https://presentation.unionrolistes.fr?error={$status}{$extra}", true, 303);
     exit;
 }
 
