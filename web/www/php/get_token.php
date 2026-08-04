@@ -10,7 +10,7 @@ $params = array(
     "grant_type" => "authorization_code",
     "client_id" => CLIENT_ID,
     "client_secret" => CLIENT_SECRET,
-    "redirect_uri" => 'http://presentation.unionrolistes.fr/php/get_token.php',
+    "redirect_uri" => REDIRECT_URI,
     "code" => $_GET['code']
 );
 
