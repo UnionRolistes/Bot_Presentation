@@ -39,6 +39,7 @@ $tranches = $xml->tranche;
     <script src="js/age_switch.js"></script>
     <script src="js/color_mode_switch.js"></script>
     <script src="js/requireMJ.js"></script>
+    <script src="js/postal_code_lookup.js"></script>
 
 </head>
 
@@ -93,6 +94,11 @@ $tranches = $xml->tranche;
                 </fieldset>
 
 
+                <label>Code postal :</label>
+                <input type="text" id="codePostal" placeholder="75017, 1000, A1A 1A1, ..."
+                    onchange="onCodePostalChange()">
+                <!--Pré-remplit région/ville ci-dessous quand c'est déterminable sans ambiguïté (voir js/postal_code_lookup.js) -- les deux champs restent modifiables à la main.-->
+
                 <label>Région : <span class="rouge">*</span></label>
                 <select name="region" id="region" required>
                     <option value="" selected>--Choisir--</option>
@@ -105,7 +111,8 @@ $tranches = $xml->tranche;
             </select>
 
             <label>Ville :</label>
-            <input type="text" name="ville" placeholder="Ville" />
+            <input type="text" name="ville" id="ville" list="villesSuggestions" placeholder="Ville" />
+            <datalist id="villesSuggestions"></datalist>
 
 
             <!-- <fieldset>
