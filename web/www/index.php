@@ -35,7 +35,6 @@ $tranches = $xml->tranche;
     <script src="js/age_switch.js"></script>
     <script src="js/color_mode_switch.js"></script>
     <script src="js/requireMJ.js"></script>
-    <script src="js/quebec_fsa_data.js"></script>
     <script src="js/postal_code_lookup.js"></script>
 
 </head>
