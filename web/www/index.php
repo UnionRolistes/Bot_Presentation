@@ -15,10 +15,6 @@ if (!file_exists("php/config.php")) {
     copy("php/config.php.default", "php/config.php");
 }
 
-$xml = simplexml_load_file('data/regions.xml');
-$regions = $xml->region;
-//Récupère la liste des régions depuis le xml
-
 $xml = simplexml_load_file('data/tranchesAge.xml');
 $tranches = $xml->tranche;
 //Récupère les tranches d'ages depuis le xml
@@ -69,7 +65,7 @@ $tranches = $xml->tranche;
         </div>
 
         <form method=post action="php/create_presentation.php" name="URform" id="URform"
-            onsubmit="alert('Présentation validée ! Envoi en cours')">
+            onsubmit="return onFormSubmit()">
 
             <!-- Connection area -->
             <input type=hidden name="webhook_url"
@@ -94,25 +90,36 @@ $tranches = $xml->tranche;
                 </fieldset>
 
 
-                <label>Code postal :</label>
-                <input type="text" id="codePostal" placeholder="75017, 1000, A1A 1A1, ..."
+                <label>Code postal : <span class="rouge">*</span></label>
+                <input type="text" id="codePostal" placeholder="75017, 1000, A1A 1A1, ..." required
                     onchange="onCodePostalChange()">
-                <!--Pré-remplit région/ville ci-dessous quand c'est déterminable sans ambiguïté (voir js/postal_code_lookup.js) -- les deux champs restent modifiables à la main.-->
+                <!--Détermine pays/région/ville ci-dessous (voir js/postal_code_lookup.js) ; region/ville sont envoyés via les champs cachés plus bas, mêmes noms qu'avant.-->
 
-                <label>Région : <span class="rouge">*</span></label>
-                <select name="region" id="region" required>
-                    <option value="" selected>--Choisir--</option>
+                <div id="localisationResult">
+                    <p>Pays : <strong id="displayPays">--</strong></p>
+                    <p>Région : <strong id="displayRegion">--</strong></p>
+                    <p>Ville :
+                        <strong id="displayVille">--</strong>
+                        <select id="villeSelect" style="display:none" onchange="onVilleSelectChange()"></select>
+                        <input type="text" id="villeTexte" style="display:none" placeholder="Ville"
+                            oninput="onVilleTexteChange()">
+                    </p>
+                </div>
 
-                <?php foreach ($regions as $i => $region) { ?>
-                    <option value="<?= $region ?>">
-                        <?= $region ?>
-                    </option>
-                <?php } ?>
-            </select>
+                <div id="paysManuel" style="display:none">
+                    <label class="rouge">Pays non déterminé automatiquement à partir de ce code postal, merci de
+                        préciser :</label>
+                    <select id="paysManuelSelect" onchange="onPaysManuelChange()">
+                        <option value="" selected>--Choisir--</option>
+                        <option value="Belgique">Belgique</option>
+                        <option value="Suisse">Suisse</option>
+                        <option value="Luxembourg">Luxembourg</option>
+                        <option value="Europe">Europe (autre)</option>
+                    </select>
+                </div>
 
-            <label>Ville :</label>
-            <input type="text" name="ville" id="ville" list="villesSuggestions" placeholder="Ville" />
-            <datalist id="villesSuggestions"></datalist>
+                <input type="hidden" name="region" id="region">
+                <input type="hidden" name="ville" id="ville">
 
 
             <!-- <fieldset>

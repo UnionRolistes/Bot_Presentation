@@ -1,10 +1,13 @@
 
-// Déduit la région et propose des villes à partir du code postal saisi,
-// pour limiter les erreurs de saisie (voir issue #83). Le champ région
-// reste modifiable manuellement : en cas de doute (Belgique/Suisse/
-// Luxembourg partagent le même format à 4 chiffres, impossible de les
-// distinguer de façon fiable) on laisse l'utilisateur choisir lui-même,
-// plutôt que de deviner au hasard.
+// Déduit pays/région/ville à partir du code postal saisi (voir issue #83) :
+// remplace les anciens champs libres "Région"/"Ville" par un résultat
+// affiché, pour limiter les erreurs de saisie. region/ville restent
+// envoyés au serveur via des champs cachés (même noms qu'avant,
+// create_presentation.php ne change pas).
+//
+// Cas non déterminable de façon fiable (Belgique/Suisse/Luxembourg
+// partagent le même format à 4 chiffres) : un sélecteur de secours
+// apparaît, plutôt que de deviner au hasard.
 
 // Département (2 chiffres, ou 3 pour les DOM) -> région, mêmes libellés
 // que data/regions.xml. Codé en dur plutôt que déduit d'une API : la
@@ -41,9 +44,6 @@ const DEPARTEMENT_TO_REGION = {
 	'971': 'Guadeloupe', '972': 'Martinique', '973': 'Guyane', '974': 'La Réunion', '976': 'Mayotte',
 };
 
-// Renvoie le libellé de région (data/regions.xml) déduit du code postal,
-// ou null si non déterminable (format inconnu, ou ambigu entre plusieurs
-// pays comme Belgique/Suisse/Luxembourg).
 function regionFromCodePostal(codePostal) {
 	if (/^97\d{3}$/.test(codePostal)) {
 		return DEPARTEMENT_TO_REGION[codePostal.substring(0, 3)] || null;
@@ -51,67 +51,160 @@ function regionFromCodePostal(codePostal) {
 	if (/^\d{5}$/.test(codePostal)) {
 		return DEPARTEMENT_TO_REGION[codePostal.substring(0, 2)] || null;
 	}
-	// Québec/Canada : format alphanumérique A1A 1A1 (espace optionnel),
-	// suffisamment distinctif pour être détecté sans ambiguïté.
-	if (/^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/.test(codePostal)) {
-		return 'Québec';
-	}
-	// Belgique, Suisse et Luxembourg utilisent tous un format à 4 chiffres
-	// -- impossible de les distinguer de façon fiable à partir du seul
-	// code postal, donc pas de détection automatique ici (l'utilisateur
-	// choisit manuellement, comme avant cette fonctionnalité).
 	return null;
+}
+
+function isCodePostalFrancais(codePostal) {
+	return /^\d{5}$/.test(codePostal);
+}
+
+// Québec/Canada : format alphanumérique A1A 1A1 (espace optionnel),
+// suffisamment distinctif pour être détecté sans ambiguïté.
+function isCodePostalQuebec(codePostal) {
+	return /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/.test(codePostal);
+}
+
+// Paris/Lyon/Marseille sont les 3 seules communes françaises divisées en
+// arrondissements ayant chacun leur propre code postal : pour un même
+// code postal, l'API renvoie parfois à la fois le nom générique de la
+// ville ("Paris") et l'arrondissement précis ("Paris 1er
+// Arrondissement") -- l'arrondissement est toujours plus précis (le code
+// postal désigne déjà UN arrondissement en particulier), on le préfère
+// plutôt que de traiter ça comme une ambiguïté entre 2 vraies communes
+// différentes (contrairement à un code partagé par plusieurs communes
+// distinctes, ex: 74120 -> Megève / Praz-sur-Arly / Demi-Quartier).
+function preferArrondissement(villes) {
+	const arrondissement = villes.find((v) => /^(Paris|Lyon|Marseille) \d+(er|e) Arrondissement$/i.test(v));
+	if (arrondissement && villes.length > 1) {
+		return [arrondissement];
+	}
+	return villes;
 }
 
 // Interroge l'API adresse du gouvernement (gratuite, sans clé) pour
 // récupérer la ou les communes correspondant à un code postal français.
-// Renvoie un tableau vide en cas d'erreur réseau ou de code non français
-// -- le champ ville reste alors éditable à la main comme avant.
+// Renvoie un tableau vide en cas d'erreur réseau.
 async function villesFromCodePostal(codePostal) {
-	if (!/^\d{5}$/.test(codePostal)) return [];
+	if (!isCodePostalFrancais(codePostal)) return [];
 	try {
 		const url = `https://api-adresse.data.gouv.fr/search/?q=${codePostal}&type=municipality&postcode=${codePostal}&limit=20`;
 		const res = await fetch(url);
 		if (!res.ok) return [];
 		const data = await res.json();
-		return [...new Set(data.features.map((f) => f.properties.city))];
+		const villes = [...new Set(data.features.map((f) => f.properties.city))];
+		return preferArrondissement(villes);
 	} catch (e) {
 		return [];
 	}
 }
 
-function selectRegion(regionLabel) {
-	const select = document.getElementById('region');
-	for (const option of select.options) {
-		if (option.value === regionLabel) {
-			select.value = regionLabel;
-			return;
-		}
-	}
+function setPays(label) {
+	document.getElementById('displayPays').textContent = label || '--';
+}
+
+function setRegion(label) {
+	document.getElementById('region').value = label || '';
+	document.getElementById('displayRegion').textContent = label || '--';
+}
+
+function setVille(name) {
+	document.getElementById('ville').value = name || '';
+}
+
+// La zone "Ville" change de forme selon ce qu'on peut déterminer :
+// - 'display' : une seule ville possible (ou aucune donnée) -- texte simple
+// - 'select'  : plusieurs communes partagent ce code postal -- l'utilisateur
+//               choisit parmi les vraies options plutôt que de deviner
+// - 'texte'   : pas de source fiable pour cette zone (étranger) -- saisie libre
+function setVilleMode(mode) {
+	document.getElementById('displayVille').style.display = mode === 'display' ? 'inline' : 'none';
+	document.getElementById('villeSelect').style.display = mode === 'select' ? 'inline' : 'none';
+	document.getElementById('villeTexte').style.display = mode === 'texte' ? 'inline' : 'none';
+}
+
+function resetLocalisation() {
+	setPays(null);
+	setRegion(null);
+	setVille(null);
+	setVilleMode('display');
+	document.getElementById('displayVille').textContent = '--';
+	document.getElementById('villeSelect').innerHTML = '';
+	document.getElementById('villeTexte').value = '';
+	document.getElementById('paysManuel').style.display = 'none';
+	document.getElementById('paysManuelSelect').value = '';
 }
 
 async function onCodePostalChange() {
 	const codePostal = document.getElementById('codePostal').value.trim();
+	resetLocalisation();
 	if (codePostal === '') return;
 
-	const region = regionFromCodePostal(codePostal);
-	if (region) selectRegion(region);
+	if (isCodePostalFrancais(codePostal)) {
+		setPays('France');
+		setRegion(regionFromCodePostal(codePostal));
 
-	const villes = await villesFromCodePostal(codePostal);
-	const datalist = document.getElementById('villesSuggestions');
-	datalist.innerHTML = '';
-	villes.forEach((ville) => {
-		const option = document.createElement('option');
-		option.value = ville;
-		datalist.appendChild(option);
-	});
-
-	// Une seule ville possible pour ce code postal : on pré-remplit
-	// directement. Plusieurs villes possibles (code postal "piégeux",
-	// ex: 74120 -> Megève / Praz-sur-Arly / Demi-Quartier) : on laisse le
-	// champ vide avec les suggestions dans la datalist, l'utilisateur
-	// choisit plutôt qu'une valeur devinée au hasard.
-	if (villes.length === 1) {
-		document.getElementById('ville').value = villes[0];
+		const villes = await villesFromCodePostal(codePostal);
+		if (villes.length === 1) {
+			setVilleMode('display');
+			document.getElementById('displayVille').textContent = villes[0];
+			setVille(villes[0]);
+		} else if (villes.length > 1) {
+			setVilleMode('select');
+			const select = document.getElementById('villeSelect');
+			select.innerHTML =
+				'<option value="" selected>--Choisir--</option>' +
+				villes.map((v) => `<option value="${v}">${v}</option>`).join('');
+		}
+		// villes.length === 0 : aucune commune trouvée (erreur réseau ou code
+		// inconnu) -- reste en mode 'display' avec "--", rien de plus à faire.
+		return;
 	}
+
+	if (isCodePostalQuebec(codePostal)) {
+		setPays('Québec');
+		setRegion('Québec');
+		setVilleMode('texte');
+		return;
+	}
+
+	// Format non reconnu (souvent Belgique/Suisse/Luxembourg, tous à 4
+	// chiffres -- impossible de les distinguer entre eux à partir du seul
+	// code postal) : on demande le pays à la main plutôt que de deviner.
+	document.getElementById('paysManuel').style.display = 'block';
+	setVilleMode('texte');
 }
+
+function onPaysManuelChange() {
+	const pays = document.getElementById('paysManuelSelect').value;
+	setPays(pays || null);
+	// regions.xml traite Belgique/Suisse/Luxembourg/Europe/Québec comme des
+	// entrées de région à part entière (pas de subdivision en dessous) --
+	// même valeur des deux côtés.
+	setRegion(pays || null);
+}
+
+function onVilleSelectChange() {
+	setVille(document.getElementById('villeSelect').value);
+}
+
+function onVilleTexteChange() {
+	setVille(document.getElementById('villeTexte').value);
+}
+
+function onFormSubmit() {
+	if (!document.getElementById('region').value) {
+		alert('Merci de renseigner un code postal permettant de déterminer votre pays avant de valider (utilisez le sélecteur de secours si besoin).');
+		return false;
+	}
+	alert('Présentation validée ! Envoi en cours');
+	return true;
+}
+
+// record_form.js restaure la valeur de codePostal depuis le localStorage
+// au chargement -- sans ça, le champ paraît rempli mais région/ville
+// cachés restent vides tant qu'on n'a pas retouché le champ.
+document.addEventListener('DOMContentLoaded', () => {
+	if (document.getElementById('codePostal').value.trim() !== '') {
+		onCodePostalChange();
+	}
+});
