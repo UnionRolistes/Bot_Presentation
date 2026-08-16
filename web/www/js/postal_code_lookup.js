@@ -65,24 +65,72 @@ function isCodePostalCanadien(codePostal) {
 	return /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/.test(codePostal);
 }
 
-function isCodePostalQuebec(codePostal) {
-	return isCodePostalCanadien(codePostal) && ['G', 'H', 'J'].includes(codePostal[0].toUpperCase());
-}
-
-// data/quebec_fsa_data.js (QUEBEC_FSA_TO_VILLE, GeoNames CC-BY 4.0) :
-// secteur postal (3 premiers caractères) -> nom de secteur. Contrairement
-// à la Belgique/Suisse/Luxembourg, aucun secteur du Québec n'est partagé
-// entre plusieurs noms dans ce jeu de données -- une correspondance
-// directe suffit, pas besoin de proposer un choix.
-function villeFromCodePostalQuebec(codePostal) {
-	const fsa = codePostal.substring(0, 3).toUpperCase();
-	return QUEBEC_FSA_TO_VILLE[fsa] || null;
-}
+// Compte GeoNames dédié (gratuit, licence CC-BY -- voir
+// https://www.geonames.org), pas un secret : identifie juste
+// l'application auprès du service, limite 1000 requêtes/heure et 10000/
+// jour largement suffisante pour ce formulaire (quelques présentations
+// par jour).
+const GEONAMES_USERNAME = 'morty_unionroliste';
 
 // Belgique/Suisse/Luxembourg partagent le même format à 4 chiffres --
 // voir candidatsPaysAmbigus() pour la levée d'ambiguïté via GeoNames.
 function isCodePostalBeChLu(codePostal) {
 	return /^\d{4}$/.test(codePostal);
+}
+
+const CODE_PAYS_TO_LABEL = { BE: 'Belgique', CH: 'Suisse', LU: 'Luxembourg' };
+
+// Interroge l'API GeoNames (postalCodeSearchJSON, gratuite, licence
+// CC-BY) sans filtre pays -- elle recherche dans tous les pays qu'elle
+// couvre en une seule requête. Ne garde que les résultats Belgique/
+// Suisse/Luxembourg (les seuls pertinents pour ce formulaire, voir
+// data/regions.xml) ; les autres pays éventuellement trouvés (le même
+// code à 4 chiffres existe souvent ailleurs en Europe aussi) sont
+// ignorés. Renvoie un tableau vide en cas d'erreur réseau ou si aucun
+// résultat BE/CH/LU.
+async function candidatsPaysAmbigus(codePostal) {
+	try {
+		const url = `https://secure.geonames.org/postalCodeSearchJSON?postalcode=${codePostal}&maxRows=30&username=${GEONAMES_USERNAME}`;
+		const res = await fetch(url);
+		if (!res.ok) return [];
+		const data = await res.json();
+		if (!data.postalCodes) return [];
+		const vus = new Set();
+		const candidats = [];
+		for (const r of data.postalCodes) {
+			const pays = CODE_PAYS_TO_LABEL[r.countryCode];
+			if (!pays) continue;
+			const cle = `${pays}|${r.placeName}`;
+			if (vus.has(cle)) continue;
+			vus.add(cle);
+			candidats.push({ pays, ville: r.placeName });
+		}
+		return candidats;
+	} catch (e) {
+		return [];
+	}
+}
+
+// Interroge GeoNames restreint au Canada (postalcode_startsWith sur le
+// secteur postal à 3 caractères -- GeoNames ne fournit que ce niveau
+// pour le Canada, raisons de droits d'auteur). adminName1 confirme la
+// province réelle : seul "Quebec" est géré par ce formulaire (voir
+// data/regions.xml), les autres provinces n'ont pas de région
+// correspondante. Renvoie {ville} si Québec confirmé, null sinon
+// (province différente, code inconnu, ou erreur réseau).
+async function infoQuebecFromCodePostal(codePostal) {
+	const secteur = codePostal.substring(0, 3).toUpperCase();
+	try {
+		const url = `https://secure.geonames.org/postalCodeSearchJSON?postalcode_startsWith=${secteur}&country=CA&maxRows=5&username=${GEONAMES_USERNAME}`;
+		const res = await fetch(url);
+		if (!res.ok) return null;
+		const data = await res.json();
+		const resultats = data.postalCodes || [];
+		const quebec = resultats.find((r) => r.adminName1 === 'Quebec');
+		return quebec ? { ville: quebec.placeName } : null;
+	} catch (e) {
+		return null;
+	}
 }
 
 // Paris/Lyon/Marseille sont les 3 seules communes françaises divisées en
@@ -117,40 +165,6 @@ async function villesFromCodePostal(codePostal) {
 	} catch (e) {
 		return [];
 	}
-}
-
-// Jeu de données GeoNames (data/postal_codes_be_ch_lu.json, licence
-// CC-BY -- voir http://www.geonames.org) : { "Belgique": {"1000": [...]},
-// "Suisse": {...}, "Luxembourg": {...} }. Chargé une seule fois à la
-// demande (fichier de ~220 Ko, inutile pour l'immense majorité des
-// utilisateurs qui saisissent un code français à 5 chiffres).
-let _dataBeChLu = null;
-async function loadDataBeChLu() {
-	if (_dataBeChLu) return _dataBeChLu;
-	try {
-		const res = await fetch('data/postal_codes_be_ch_lu.json');
-		_dataBeChLu = res.ok ? await res.json() : {};
-	} catch (e) {
-		_dataBeChLu = {};
-	}
-	return _dataBeChLu;
-}
-
-// Renvoie tous les {pays, ville} correspondant à ce code postal à 4
-// chiffres, tous pays confondus (un même code peut exister dans
-// plusieurs des 3 pays, et/ou correspondre à plusieurs villes dans un
-// même pays). Tableau vide si le code n'existe dans aucun des 3 jeux de
-// données.
-async function candidatsPaysAmbigus(codePostal) {
-	const data = await loadDataBeChLu();
-	const candidats = [];
-	for (const pays of ['Belgique', 'Suisse', 'Luxembourg']) {
-		const villes = (data[pays] || {})[codePostal];
-		if (villes) {
-			for (const ville of villes) candidats.push({ pays, ville });
-		}
-	}
-	return candidats;
 }
 
 function setPays(label) {
@@ -218,27 +232,22 @@ async function onCodePostalChange() {
 		return;
 	}
 
-	if (isCodePostalQuebec(codePostal)) {
-		setPays('Québec');
-		setRegion('Québec');
-		const ville = villeFromCodePostalQuebec(codePostal);
-		if (ville) {
+	if (isCodePostalCanadien(codePostal)) {
+		const info = await infoQuebecFromCodePostal(codePostal);
+		if (info) {
+			setPays('Québec');
+			setRegion('Québec');
 			setVilleMode('display');
-			document.getElementById('displayVille').textContent = ville;
-			setVille(ville);
+			document.getElementById('displayVille').textContent = info.ville;
+			setVille(info.ville);
 		} else {
+			// Soit une autre province (ce formulaire ne prévoit que le Québec
+			// comme option Canada, voir data/regions.xml -- pas de région
+			// correspondante à proposer pour les autres), soit secteur
+			// postal inconnu : repli sur le sélecteur manuel.
+			document.getElementById('paysManuel').style.display = 'block';
 			setVilleMode('texte');
 		}
-		return;
-	}
-
-	if (isCodePostalCanadien(codePostal)) {
-		// Format canadien reconnu mais pas le Québec (autre province) : ce
-		// formulaire ne prévoit que le Québec comme option Canada (voir
-		// data/regions.xml), pas de région correspondante à proposer --
-		// repli sur le sélecteur manuel comme pour un format non reconnu.
-		document.getElementById('paysManuel').style.display = 'block';
-		setVilleMode('texte');
 		return;
 	}
 
