@@ -2,12 +2,8 @@
 // Déduit pays/région/ville à partir du code postal saisi (voir issue #83) :
 // remplace les anciens champs libres "Région"/"Ville" par un résultat
 // affiché, pour limiter les erreurs de saisie. region/ville restent
-// envoyés au serveur via des champs cachés (même noms qu'avant,
+// envoyés au serveur via des champs cachés (mêmes noms qu'avant,
 // create_presentation.php ne change pas).
-//
-// Cas non déterminable de façon fiable (Belgique/Suisse/Luxembourg
-// partagent le même format à 4 chiffres) : un sélecteur de secours
-// apparaît, plutôt que de deviner au hasard.
 
 // Département (2 chiffres, ou 3 pour les DOM) -> région, mêmes libellés
 // que data/regions.xml. Codé en dur plutôt que déduit d'une API : la
@@ -64,6 +60,12 @@ function isCodePostalQuebec(codePostal) {
 	return /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/.test(codePostal);
 }
 
+// Belgique/Suisse/Luxembourg partagent le même format à 4 chiffres --
+// voir candidatsPaysAmbigus() pour la levée d'ambiguïté via GeoNames.
+function isCodePostalBeChLu(codePostal) {
+	return /^\d{4}$/.test(codePostal);
+}
+
 // Paris/Lyon/Marseille sont les 3 seules communes françaises divisées en
 // arrondissements ayant chacun leur propre code postal : pour un même
 // code postal, l'API renvoie parfois à la fois le nom générique de la
@@ -98,6 +100,40 @@ async function villesFromCodePostal(codePostal) {
 	}
 }
 
+// Jeu de données GeoNames (data/postal_codes_be_ch_lu.json, licence
+// CC-BY -- voir http://www.geonames.org) : { "Belgique": {"1000": [...]},
+// "Suisse": {...}, "Luxembourg": {...} }. Chargé une seule fois à la
+// demande (fichier de ~220 Ko, inutile pour l'immense majorité des
+// utilisateurs qui saisissent un code français à 5 chiffres).
+let _dataBeChLu = null;
+async function loadDataBeChLu() {
+	if (_dataBeChLu) return _dataBeChLu;
+	try {
+		const res = await fetch('data/postal_codes_be_ch_lu.json');
+		_dataBeChLu = res.ok ? await res.json() : {};
+	} catch (e) {
+		_dataBeChLu = {};
+	}
+	return _dataBeChLu;
+}
+
+// Renvoie tous les {pays, ville} correspondant à ce code postal à 4
+// chiffres, tous pays confondus (un même code peut exister dans
+// plusieurs des 3 pays, et/ou correspondre à plusieurs villes dans un
+// même pays). Tableau vide si le code n'existe dans aucun des 3 jeux de
+// données.
+async function candidatsPaysAmbigus(codePostal) {
+	const data = await loadDataBeChLu();
+	const candidats = [];
+	for (const pays of ['Belgique', 'Suisse', 'Luxembourg']) {
+		const villes = (data[pays] || {})[codePostal];
+		if (villes) {
+			for (const ville of villes) candidats.push({ pays, ville });
+		}
+	}
+	return candidats;
+}
+
 function setPays(label) {
 	document.getElementById('displayPays').textContent = label || '--';
 }
@@ -113,9 +149,10 @@ function setVille(name) {
 
 // La zone "Ville" change de forme selon ce qu'on peut déterminer :
 // - 'display' : une seule ville possible (ou aucune donnée) -- texte simple
-// - 'select'  : plusieurs communes partagent ce code postal -- l'utilisateur
-//               choisit parmi les vraies options plutôt que de deviner
-// - 'texte'   : pas de source fiable pour cette zone (étranger) -- saisie libre
+// - 'select'  : plusieurs communes françaises partagent ce code postal --
+//               l'utilisateur choisit parmi les vraies options
+// - 'texte'   : pas de source fiable pour cette zone (étranger, pays
+//               choisi à la main) -- saisie libre
 function setVilleMode(mode) {
 	document.getElementById('displayVille').style.display = mode === 'display' ? 'inline' : 'none';
 	document.getElementById('villeSelect').style.display = mode === 'select' ? 'inline' : 'none';
@@ -132,6 +169,8 @@ function resetLocalisation() {
 	document.getElementById('villeTexte').value = '';
 	document.getElementById('paysManuel').style.display = 'none';
 	document.getElementById('paysManuelSelect').value = '';
+	document.getElementById('paysVilleChoix').style.display = 'none';
+	document.getElementById('paysVilleChoixSelect').innerHTML = '';
 }
 
 async function onCodePostalChange() {
@@ -167,11 +206,52 @@ async function onCodePostalChange() {
 		return;
 	}
 
-	// Format non reconnu (souvent Belgique/Suisse/Luxembourg, tous à 4
-	// chiffres -- impossible de les distinguer entre eux à partir du seul
-	// code postal) : on demande le pays à la main plutôt que de deviner.
+	if (isCodePostalBeChLu(codePostal)) {
+		const candidats = await candidatsPaysAmbigus(codePostal);
+		if (candidats.length === 1) {
+			// Un seul pays (et une seule ville dedans) correspond à ce code :
+			// pas d'ambiguïté réelle malgré le format partagé à 4 chiffres.
+			setPays(candidats[0].pays);
+			setRegion(candidats[0].pays);
+			setVilleMode('display');
+			document.getElementById('displayVille').textContent = candidats[0].ville;
+			setVille(candidats[0].ville);
+			return;
+		}
+		if (candidats.length > 1) {
+			// Plusieurs correspondances réelles (même pays plusieurs villes,
+			// et/ou plusieurs pays) : l'utilisateur choisit parmi les vraies
+			// options trouvées plutôt qu'un pays à l'aveugle.
+			document.getElementById('paysVilleChoix').style.display = 'block';
+			const select = document.getElementById('paysVilleChoixSelect');
+			select.innerHTML =
+				'<option value="" selected>--Choisir--</option>' +
+				candidats
+					.map((c, i) => `<option value="${i}">${c.ville} (${c.pays})</option>`)
+					.join('');
+			select.dataset.candidats = JSON.stringify(candidats);
+			setVilleMode('texte'); // au cas où le choix ne correspondrait à aucun candidat listé
+			return;
+		}
+		// Aucune correspondance dans les 3 jeux de données (code inconnu, ou
+		// pays non couvert par GeoNames pour ce code) : repli sur la saisie
+		// manuelle du pays, comme avant cette amélioration.
+	}
+
 	document.getElementById('paysManuel').style.display = 'block';
 	setVilleMode('texte');
+}
+
+function onPaysVilleChoixChange() {
+	const select = document.getElementById('paysVilleChoixSelect');
+	const candidats = JSON.parse(select.dataset.candidats || '[]');
+	const choix = candidats[parseInt(select.value, 10)];
+	if (!choix) return;
+	setPays(choix.pays);
+	setRegion(choix.pays);
+	setVilleMode('display');
+	document.getElementById('displayVille').textContent = choix.ville;
+	setVille(choix.ville);
 }
 
 function onPaysManuelChange() {
