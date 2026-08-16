@@ -35,6 +35,7 @@ $tranches = $xml->tranche;
     <script src="js/age_switch.js"></script>
     <script src="js/color_mode_switch.js"></script>
     <script src="js/requireMJ.js"></script>
+    <script src="js/quebec_fsa_data.js"></script>
     <script src="js/postal_code_lookup.js"></script>
 
 </head>
@@ -245,7 +246,7 @@ $tranches = $xml->tranche;
             <span class="beta"><b>Attention cet outil est en beta-test</b><br>
                 <a href="https://github.com/UnionRolistes/Web_Presentation"
                     uk-icon="icon: github; ratio:1.5">GitHub</a><br>
-                Données de codes postaux Belgique/Suisse/Luxembourg : <a href="https://www.geonames.org/"
+                Données de codes postaux Belgique/Suisse/Luxembourg/Québec : <a href="https://www.geonames.org/"
                     target="_blank">GeoNames</a> (CC-BY 4.0)</span>
         </form>
 
