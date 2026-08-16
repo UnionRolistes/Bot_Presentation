@@ -54,10 +54,29 @@ function isCodePostalFrancais(codePostal) {
 	return /^\d{5}$/.test(codePostal);
 }
 
-// Québec/Canada : format alphanumérique A1A 1A1 (espace optionnel),
-// suffisamment distinctif pour être détecté sans ambiguïté.
-function isCodePostalQuebec(codePostal) {
+// Canada : format alphanumérique A1A 1A1 (espace optionnel). Ce format
+// est utilisé par TOUTES les provinces, pas seulement le Québec -- la
+// première lettre indique la province de façon fixe (Postes Canada) :
+// G/H/J -> Québec, A=Terre-Neuve, B=Nouvelle-Écosse, C=Île-du-Prince-
+// Édouard, E=Nouveau-Brunswick, K/L/M/N/P=Ontario, R=Manitoba,
+// S=Saskatchewan, T=Alberta, V=Colombie-Britannique,
+// X=Territoires du Nord-Ouest/Nunavut, Y=Yukon.
+function isCodePostalCanadien(codePostal) {
 	return /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/.test(codePostal);
+}
+
+function isCodePostalQuebec(codePostal) {
+	return isCodePostalCanadien(codePostal) && ['G', 'H', 'J'].includes(codePostal[0].toUpperCase());
+}
+
+// data/quebec_fsa_data.js (QUEBEC_FSA_TO_VILLE, GeoNames CC-BY 4.0) :
+// secteur postal (3 premiers caractères) -> nom de secteur. Contrairement
+// à la Belgique/Suisse/Luxembourg, aucun secteur du Québec n'est partagé
+// entre plusieurs noms dans ce jeu de données -- une correspondance
+// directe suffit, pas besoin de proposer un choix.
+function villeFromCodePostalQuebec(codePostal) {
+	const fsa = codePostal.substring(0, 3).toUpperCase();
+	return QUEBEC_FSA_TO_VILLE[fsa] || null;
 }
 
 // Belgique/Suisse/Luxembourg partagent le même format à 4 chiffres --
@@ -202,6 +221,23 @@ async function onCodePostalChange() {
 	if (isCodePostalQuebec(codePostal)) {
 		setPays('Québec');
 		setRegion('Québec');
+		const ville = villeFromCodePostalQuebec(codePostal);
+		if (ville) {
+			setVilleMode('display');
+			document.getElementById('displayVille').textContent = ville;
+			setVille(ville);
+		} else {
+			setVilleMode('texte');
+		}
+		return;
+	}
+
+	if (isCodePostalCanadien(codePostal)) {
+		// Format canadien reconnu mais pas le Québec (autre province) : ce
+		// formulaire ne prévoit que le Québec comme option Canada (voir
+		// data/regions.xml), pas de région correspondante à proposer --
+		// repli sur le sélecteur manuel comme pour un format non reconnu.
+		document.getElementById('paysManuel').style.display = 'block';
 		setVilleMode('texte');
 		return;
 	}
