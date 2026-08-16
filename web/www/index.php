@@ -106,6 +106,12 @@ $tranches = $xml->tranche;
                     </p>
                 </div>
 
+                <div id="paysVilleChoix" style="display:none">
+                    <label>Plusieurs correspondances possibles pour ce code postal, laquelle est la vôtre ?
+                        <span class="rouge">*</span></label>
+                    <select id="paysVilleChoixSelect" onchange="onPaysVilleChoixChange()"></select>
+                </div>
+
                 <div id="paysManuel" style="display:none">
                     <label class="rouge">Pays non déterminé automatiquement à partir de ce code postal, merci de
                         préciser :</label>
@@ -238,7 +244,9 @@ $tranches = $xml->tranche;
 
             <span class="beta"><b>Attention cet outil est en beta-test</b><br>
                 <a href="https://github.com/UnionRolistes/Web_Presentation"
-                    uk-icon="icon: github; ratio:1.5">GitHub</a></span>
+                    uk-icon="icon: github; ratio:1.5">GitHub</a><br>
+                Données de codes postaux Belgique/Suisse/Luxembourg : <a href="https://www.geonames.org/"
+                    target="_blank">GeoNames</a> (CC-BY 4.0)</span>
         </form>
 
         <script src="js/record_form.js"></script>
