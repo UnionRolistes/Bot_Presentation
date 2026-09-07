@@ -32,7 +32,7 @@ if (!empty($_POST['android'])) $os[] = ':android:';
 
 $kwargs = [
     'pseudo' => '<@' . ($_POST['user_id'] ?? '') . '> [' . ($_POST['pseudo'] ?? '') . ']',
-    'home' => ($_POST['region'] ?? '') . (!empty($_POST['ville']) ? ' - ' . $_POST['ville'] : ''),
+    'home' => ($_POST['region'] ?? '') . (!empty($_POST['ville']) ? ' - ' . $_POST['ville'] : '') . (!empty($_POST['departement']) ? ' [' . $_POST['departement'] . ']' : ''),
     'age' => !empty($_POST['age']) ? $_POST['age'] : ($_POST['trancheAge'] ?? ''),
     'experience' => $_POST['experience'] ?? '',
     'origin' => $_POST['connaissance'] ?? '',

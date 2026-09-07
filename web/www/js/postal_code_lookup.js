@@ -50,6 +50,22 @@ function regionFromCodePostal(codePostal) {
 	return null;
 }
 
+// Code département (2 chiffres, ou 3 pour les DOM) -- permet au responsable
+// d'attribuer un rôle local (voir issue #104), affiché en plus de la
+// région/ville, pas de calcul supplémentaire (même préfixe que
+// regionFromCodePostal, déjà validé contre DEPARTEMENT_TO_REGION).
+function departementFromCodePostal(codePostal) {
+	if (/^97\d{3}$/.test(codePostal)) {
+		const code = codePostal.substring(0, 3);
+		return DEPARTEMENT_TO_REGION[code] ? code : null;
+	}
+	if (/^\d{5}$/.test(codePostal)) {
+		const code = codePostal.substring(0, 2);
+		return DEPARTEMENT_TO_REGION[code] ? code : null;
+	}
+	return null;
+}
+
 function isCodePostalFrancais(codePostal) {
 	return /^\d{5}$/.test(codePostal);
 }
@@ -180,6 +196,14 @@ function setVille(name) {
 	document.getElementById('ville').value = name || '';
 }
 
+// France uniquement (voir issue #104) -- affiché en plus de la région/ville
+// pour permettre au responsable d'attribuer un rôle local ; '--' pour les
+// autres pays, qui n'ont pas de département.
+function setDepartement(code) {
+	document.getElementById('departement').value = code || '';
+	document.getElementById('displayDepartement').textContent = code || '--';
+}
+
 // La zone "Ville" change de forme selon ce qu'on peut déterminer :
 // - 'display' : une seule ville possible (ou aucune donnée) -- texte simple
 // - 'select'  : plusieurs communes françaises partagent ce code postal --
@@ -195,6 +219,7 @@ function setVilleMode(mode) {
 function resetLocalisation() {
 	setPays(null);
 	setRegion(null);
+	setDepartement(null);
 	setVille(null);
 	setVilleMode('display');
 	document.getElementById('displayVille').textContent = '--';
@@ -214,6 +239,7 @@ async function onCodePostalChange() {
 	if (isCodePostalFrancais(codePostal)) {
 		setPays('France');
 		setRegion(regionFromCodePostal(codePostal));
+		setDepartement(departementFromCodePostal(codePostal));
 
 		const villes = await villesFromCodePostal(codePostal);
 		if (villes.length === 1) {

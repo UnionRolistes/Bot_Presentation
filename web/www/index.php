@@ -98,6 +98,7 @@ $tranches = $xml->tranche;
                 <div id="localisationResult">
                     <p>Pays : <strong id="displayPays">--</strong></p>
                     <p>Région : <strong id="displayRegion">--</strong></p>
+                    <p id="departementResult">Département : <strong id="displayDepartement">--</strong></p>
                     <p>Ville :
                         <strong id="displayVille">--</strong>
                         <select id="villeSelect" style="display:none" onchange="onVilleSelectChange()"></select>
@@ -126,6 +127,7 @@ $tranches = $xml->tranche;
 
                 <input type="hidden" name="region" id="region">
                 <input type="hidden" name="ville" id="ville">
+                <input type="hidden" name="departement" id="departement">
 
 
             <!-- <fieldset>
