@@ -75,13 +75,17 @@ function asset($path) {
         </div>
     </header>
 
-    <main class="wrap wrap--form">
-
-        <section class="hero">
+    <section class="hero">
+        <!-- Grand filigrane du bandeau, identique au site (voir issue #110) -->
+        <img class="hero-watermark" src="img/ur-bl2.png" alt="" aria-hidden="true">
+        <div class="wrap wrap--form">
             <span class="eyebrow">Communauté · Présentation</span><span class="tag">Bêta</span>
             <h1>Présentez-vous à <span class="glow">la communauté</span>.</h1>
             <p class="lead">Remplissez ce formulaire : votre présentation sera publiée automatiquement sur le Discord de l'Union des Rôlistes.</p>
-        </section>
+        </div>
+    </section>
+
+    <main class="wrap wrap--form">
 
         <?php
         if (isset($_GET['error'])) {

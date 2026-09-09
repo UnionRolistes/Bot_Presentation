@@ -179,7 +179,21 @@ html[data-theme="light"] .theme-toggle .i-sun { display: none; }
 html[data-theme="light"] .theme-toggle .i-moon { display: block; }
 
 /* Titre ----------------------------------------------------------------- */
-.hero { padding: clamp(2rem, 6vw, 4rem) 0 1.6rem; }
+.hero { position: relative; overflow: hidden; isolation: isolate; padding: clamp(2rem, 6vw, 4rem) 0 1.6rem; }
+
+/* Grand filigrane du bandeau, identique au site : hydre ancrée à droite qui
+   déborde du bord, fondue vers le bas, et qui "respire" lentement. */
+.hero-watermark {
+  position: absolute; z-index: 0; top: 50%; right: -6%; translate: 0 -50%;
+  width: min(720px, 68vw); opacity: .06; pointer-events: none; user-select: none;
+  filter: brightness(0) invert(.85);
+  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+  mask-image: linear-gradient(180deg, #000 60%, transparent);
+  animation: breathe 9s ease-in-out infinite;
+}
+@keyframes breathe { 50% { opacity: .10; transform: scale(1.02); } }
+html[data-theme="light"] .hero-watermark { filter: brightness(0) invert(.1); }
+@media (max-width: 920px) { .hero-watermark { opacity: .045; width: min(420px, 80vw); right: -14%; } }
 
 .eyebrow {
   font-family: "UR Serif", serif; font-weight: 600;
