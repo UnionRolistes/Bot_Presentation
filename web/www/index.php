@@ -20,6 +20,14 @@ $tranches = $xml->tranche;
 //Récupère les tranches d'ages depuis le xml
 
 $connected = isset($_SESSION['avatar_url']) && isset($_SESSION['username']);
+
+// URL d'un fichier statique versionnée par sa date de modification : un
+// navigateur qui a l'ancienne version en cache (nginx n'envoie pas de
+// Cache-Control sur les statiques) recharge le fichier dès qu'il change,
+// sans rien toucher côté serveur. Voir issue #108.
+function asset($path) {
+    return $path . '?v=' . filemtime(__DIR__ . '/' . $path);
+}
 ?>
 
 <!DOCTYPE html>
@@ -34,14 +42,14 @@ $connected = isset($_SESSION['avatar_url']) && isset($_SESSION['username']);
          même clé localStorage ('ur-theme') et même logique que site.unionrolistes.fr -->
     <script>(function(){try{var t=localStorage.getItem('ur-theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 
-    <link rel="preload" href="fonts/OldNewspaperTypes.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="css/master.css"> <!--Disposition + palettes sombre/claire (voir css/master.css)-->
+    <link rel="preload" href="<?= asset('fonts/OldNewspaperTypes.ttf') ?>" as="font" type="font/ttf" crossorigin>
+    <link rel="stylesheet" href="<?= asset('css/master.css') ?>"> <!--Disposition + palettes sombre/claire (voir css/master.css)-->
 
     <link rel="icon" type="image/png" href="img/ur-bl2.png">
-    <script src="js/age_switch.js"></script>
-    <script src="js/color_mode_switch.js"></script>
-    <script src="js/requireMJ.js"></script>
-    <script src="js/postal_code_lookup.js"></script>
+    <script src="<?= asset('js/age_switch.js') ?>"></script>
+    <script src="<?= asset('js/color_mode_switch.js') ?>"></script>
+    <script src="<?= asset('js/requireMJ.js') ?>"></script>
+    <script src="<?= asset('js/postal_code_lookup.js') ?>"></script>
 
 </head>
 
@@ -270,7 +278,7 @@ $connected = isset($_SESSION['avatar_url']) && isset($_SESSION['username']);
             </div>
         </form>
 
-        <script src="js/record_form.js"></script>
+        <script src="<?= asset('js/record_form.js') ?>"></script>
     </main>
 
     <?php include('php/footer.html'); ?>
