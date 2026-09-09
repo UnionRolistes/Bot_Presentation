@@ -2,26 +2,36 @@
 To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
 Ask a derogation at Contact.unionrolistes@gmail.com*/
 
-function chgMode(){ //Change le Css Sombre <--> Clair
+// Bascule clair/sombre : même mécanisme que site.unionrolistes.fr
+// (attribut data-theme="light" sur <html>, choix mémorisé sous la clé
+// localStorage 'ur-theme', défaut = préférence système). Le thème initial
+// est appliqué par un script inline dans <head> avant le chargement du CSS
+// pour éviter un flash au chargement ; ici on ne gère que la bascule.
+(function () {
+	const KEY = 'ur-theme';
 
-	if (document.getElementById("mode").innerHTML == "Clair ☀")
-	{
-		document.getElementById("mode").innerHTML = "Sombre 🌙";
-		var oldlink1 = document.getElementsByTagName("link").item(1);
-		var newlink1 =  document.createElement("link");
-		newlink1.setAttribute("rel", "stylesheet");
-		newlink1.setAttribute("href", "css/styleDark.css"); //CSS pour l'affichage sombre. Nom et contenu personnalisable
-
-		document.getElementsByTagName("head").item(0).replaceChild(newlink1, oldlink1);
+	function apply(theme) {
+		if (theme === 'light') {
+			document.documentElement.setAttribute('data-theme', 'light');
+		} else {
+			document.documentElement.removeAttribute('data-theme');
+		}
 	}
-	else {
-		
-		document.getElementById("mode").innerHTML = "Clair ☀";
-		var oldlink1 = document.getElementsByTagName("link").item(1);
-		var newlink1 =  document.createElement("link");
-		newlink1.setAttribute("rel", "stylesheet");
-		newlink1.setAttribute("href", "css/styleLight.css"); //CSS pour l'affichage clair. Nom et contenu personnalisable
 
-		document.getElementsByTagName("head").item(0).replaceChild(newlink1, oldlink1);	
-	}
-}
+	// Conservé sous ce nom pour compatibilité avec d'éventuels appels externes.
+	window.chgMode = function () {
+		const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+		apply(next);
+		try {
+			localStorage.setItem(KEY, next);
+		} catch (e) {
+			// stockage indisponible (navigation privée...) : la bascule reste
+			// valable pour la page en cours, simplement pas mémorisée
+		}
+	};
+
+	document.addEventListener('DOMContentLoaded', () => {
+		const bouton = document.getElementById('themeToggle');
+		if (bouton) bouton.addEventListener('click', window.chgMode);
+	});
+})();
